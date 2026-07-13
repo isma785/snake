@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Yassmine Snake ❤️</title>
+
+<style>
+body {
+    background: linear-gradient(135deg, #ffd6e8, #fff);
+    font-family: Arial;
+    text-align: center;
+}
+
+h1 {
+    color: #e91e63;
+}
+
+canvas {
+    background: #222;
+    border: 4px solid #e91e63;
+    border-radius: 10px;
+}
+
+#score {
+    font-size: 22px;
+    color: #e91e63;
+    margin: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background: #e91e63;
+    color: white;
+    cursor: pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>🐍 Yassmine Snake ❤️</h1>
+
+<canvas id="game" width="400" height="400"></canvas>
+
+<div id="score">Punkte: 0</div>
+
+<button onclick="restart()">Neustart</button>
+
+
+<script>
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let snake;
+let food;
+let dx;
+let dy;
+let score;
+let gameLoop;
+
+
+function start(){
+
+    snake = [
+        {x:200,y:200},
+        {x:180,y:200},
+        {x:160,y:200}
+    ];
+
+    food = {
+        x: Math.floor(Math.random()*20)*20,
+        y: Math.floor(Math.random()*20)*20
+    };
+
+    dx = 20;
+    dy = 0;
+    score = 0;
+
+    document.getElementById("score").innerHTML =
+    "Punkte: " + score;
+
+    clearInterval(gameLoop);
+    gameLoop = setInterval(draw,100);
+}
+
+
+function draw(){
+
+    ctx.fillStyle="#222";
+    ctx.fillRect(0,0,400,400);
+
+
+    // Essen
+    ctx.font="25px Arial";
+    ctx.fillText("❤️", food.x, food.y+20);
+
+
+    // Schlange
+    snake.forEach((part,index)=>{
+
+        ctx.fillStyle = index===0 ? "#e91e63" : "#ff80ab";
+
+        ctx.fillRect(
+            part.x,
+            part.y,
+            18,
+            18
+        );
+    });
+
+
+    let head = {
+        x: snake[0].x + dx,
+        y: snake[0].y + dy
+    };
+
+
+    // Wand treffen
+    if(
+        head.x < 0 ||
+        head.x >= 400 ||
+        head.y < 0 ||
+        head.y >= 400
+    ){
+        gameOver();
+        return;
+    }
+
+
+    // Sich selbst treffen
+    for(let part of snake){
+        if(head.x===part.x && head.y===part.y){
+            gameOver();
+            return;
+        }
+    }
+
+
+    snake.unshift(head);
+
+
+    // Essen gefunden
+    if(head.x===food.x && head.y===food.y){
+
+        score++;
+
+        document.getElementById("score").innerHTML =
+        "Punkte: " + score + " ❤️";
+
+        food={
+            x:Math.floor(Math.random()*20)*20,
+            y:Math.floor(Math.random()*20)*20
+        };
+
+    } else {
+        snake.pop();
+    }
+
+}
+
+
+function gameOver(){
+
+    clearInterval(gameLoop);
+
+    setTimeout(()=>{
+        alert(
+        "Game Over ❤️\n\nYassmine bleibt trotzdem die Nummer 1!"
+        );
+    },100);
+}
+
+
+document.addEventListener("keydown", e=>{
+
+    if(e.key==="ArrowUp" && dy!==20){
+        dx=0;
+        dy=-20;
+    }
+
+    if(e.key==="ArrowDown" && dy!==-20){
+        dx=0;
+        dy=20;
+    }
+
+    if(e.key==="ArrowLeft" && dx!==20){
+        dx=-20;
+        dy=0;
+    }
+
+    if(e.key==="ArrowRight" && dx!==-20){
+        dx=20;
+        dy=0;
+    }
+
+});
+
+
+function restart(){
+    start();
+}
+
+
+start();
+
+</script>
+
+</body>
+</html>
