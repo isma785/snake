@@ -2,62 +2,246 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Yasmine Snake ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yasmine Snake 💗</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style>
+  :root {
+    --pink:      #FF6FA5;
+    --pink-dark: #E8497E;
+    --pink-pale: #FFD6E7;
+    --lavender:  #B9A6FF;
+    --mint:      #6FE0B8;
+    --ink:       #5B3A56;
+    --board:     #4B3B6B;
+    --cream:     #FFF7FB;
+  }
+
+  * { box-sizing: border-box; }
+
   body {
-    background: linear-gradient(135deg, #ffd6e8, #fff);
-    font-family: Arial, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    padding: 28px 16px 40px;
+    background: linear-gradient(160deg, #FFE3EF 0%, #F1E7FF 55%, #E4F9F0 100%);
+    font-family: 'Quicksand', sans-serif;
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* Dekorative Herzen, die sanft im Hintergrund schweben */
+  .floaties {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .floaties span {
+    position: absolute;
+    opacity: 0.35;
+    animation: drift 7s ease-in-out infinite;
+  }
+
+  @keyframes drift {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50%      { transform: translateY(-18px) rotate(4deg); }
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 440px;
+    margin: 0 auto;
     text-align: center;
   }
 
-  h1 {
-    color: #e91e63;
+  .header {
+    margin-bottom: 14px;
+  }
+
+  .title {
+    margin: 0;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 38px;
+    color: var(--pink-dark);
+  }
+
+  .title .wiggle {
+    display: inline-block;
+    animation: wiggle 2.2s ease-in-out infinite;
+  }
+
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    50%      { transform: rotate(-10deg) scale(1.15); }
+  }
+
+  .subtitle {
+    margin: 2px 0 0;
+    font-weight: 600;
+    color: var(--ink);
+    opacity: 0.7;
+    font-size: 14.5px;
+  }
+
+  /* Herz-Fortschrittsanzeige statt trockener Zahl */
+  .hearts-progress {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 18px 0 20px;
+  }
+
+  .heart-slot {
+    font-size: 30px;
+    transition: transform .2s ease;
+  }
+
+  .heart-slot.filled {
+    animation: heartPop .5s ease-out;
+  }
+
+  @keyframes heartPop {
+    0%   { transform: scale(0.5); }
+    60%  { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  .game-frame {
+    position: relative;
+    background: var(--cream);
+    border-radius: 32px;
+    padding: 20px 20px 26px;
+    border: 5px solid white;
+    box-shadow:
+      0 4px 0 var(--pink-pale),
+      0 18px 34px -18px rgba(232,73,126,0.45);
+  }
+
+  .score-bubble {
+    position: absolute;
+    top: -18px;
+    left: 22px;
+    background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+    color: white;
+    padding: 8px 16px;
+    border-radius: 999px;
+    transform: rotate(-6deg);
+    box-shadow: 0 6px 14px -4px rgba(232,73,126,0.6);
+    font-family: 'Fredoka', sans-serif;
+  }
+
+  .score-label {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    font-weight: 500;
+  }
+
+  .score-value {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .score-value.pulse {
+    animation: pulse .4s ease-out;
+  }
+
+  @keyframes pulse {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+
+  .stage {
+    position: relative;
+    margin-top: 14px;
   }
 
   canvas#game {
-    background: #222;
-    border: 4px solid #e91e63;
-    border-radius: 10px;
+    display: block;
+    width: 100%;
+    max-width: 380px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+    background: var(--board);
+    border-radius: 22px;
+    border: 4px solid var(--lavender);
+    box-shadow: inset 0 0 24px rgba(0,0,0,0.18);
   }
 
-  #score {
-    font-size: 22px;
-    color: #e91e63;
-    margin: 10px;
-  }
-
-  #goal {
-    font-size: 16px;
-    color: #c2185b;
-    margin: -5px 0 10px;
-    font-weight: bold;
-  }
-
-  button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 20px;
-    background: #e91e63;
-    color: white;
-    cursor: pointer;
+  #bonusMsg {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
     font-size: 15px;
+    color: white;
+    background: var(--mint);
+    padding: 5px 16px;
+    border-radius: 999px;
+    box-shadow: 0 4px 10px -3px rgba(111,224,184,0.7);
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
   }
 
-  button:hover {
-    background: #c2185b;
+  #bonusMsg.show {
+    animation: bonusPop 1.3s ease-out;
   }
 
-  /* Reihenfolge (unten nach oben): Overlay -> Feuerwerk -> Karte */
-  #surprise {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, .85);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 900;
+  @keyframes bonusPop {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(6px) scale(.8); }
+    18%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.08); }
+    75%  { opacity: 1; transform: translateX(-50%) translateY(-2px) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(1); }
   }
+
+  .btn {
+    margin-top: 22px;
+    padding: 13px 30px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--lavender), #9C82FF);
+    color: white;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #8064E8;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(2px);
+    box-shadow: 0 3px 0 #8064E8;
+  }
+
+  .btn:active {
+    transform: translateY(5px);
+    box-shadow: 0 0 0 #8064E8;
+  }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--pink-dark);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Überraschungs-Modal ---------- */
 
   #fireworks {
     position: fixed;
@@ -67,56 +251,129 @@
     display: none;
   }
 
-  .card {
-    position: relative;
-    z-index: 1000;
-    background: white;
-    padding: 40px;
-    border-radius: 25px;
-    text-align: center;
-    animation: pop .6s;
-    box-shadow: 0 0 40px hotpink;
+  #surprise {
+    position: fixed;
+    inset: 0;
+    background: rgba(75, 59, 107, 0.78);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 900;
+    padding: 20px;
   }
 
-  .flowers {
-    font-size: 70px;
-    display: inline-block;
+  .surprise-card {
+    position: relative;
+    z-index: 1000;
+    background: var(--cream);
+    padding: 40px 32px;
+    border-radius: 30px;
+    text-align: center;
+    max-width: 340px;
+    border: 5px solid white;
+    animation: pop .5s ease-out;
+    box-shadow: 0 24px 48px -16px rgba(0,0,0,0.4);
+  }
+
+  .flowers-badge {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink-pale), var(--lavender));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
     animation: float 2.4s ease-in-out infinite;
   }
 
+  .surprise-card h2 {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    color: var(--pink-dark);
+    font-size: 26px;
+    margin: 0 0 10px;
+  }
+
+  .surprise-card p {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin: 0 0 22px;
+    font-weight: 600;
+  }
+
   @keyframes pop {
-    from { transform: scale(.2); opacity: 0; }
-    to   { transform: scale(1);  opacity: 1; }
+    from { transform: scale(.85); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-8px); }
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-6px) rotate(4deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 </style>
 </head>
 
 <body>
 
-<h1>🐍 Yasmine Snake ❤️</h1>
+<div class="floaties" aria-hidden="true">
+  <span style="top:8%;  left:8%;  font-size:26px; animation-delay:0s;">💗</span>
+  <span style="top:20%; left:82%; font-size:20px; animation-delay:1.2s;">💕</span>
+  <span style="top:55%; left:4%;  font-size:22px; animation-delay:2.4s;">💖</span>
+  <span style="top:75%; left:88%; font-size:24px; animation-delay:.6s;">💗</span>
+  <span style="top:88%; left:15%; font-size:18px; animation-delay:1.8s;">💕</span>
+</div>
 
-<canvas id="game" width="400" height="400"></canvas>
-<div id="score">Punkte: 0</div>
-<div id="goal">Ziel: 0 / 10 Herzen ❤️</div>
-<button onclick="restart()">Neustart</button>
+<div class="page">
+  <div class="header">
+    <h1 class="title">Yasmine <span class="wiggle">💗</span></h1>
+    <p class="subtitle">Snake mit ganz viel Liebe</p>
+  </div>
+
+  <div class="hearts-progress" id="heartsProgress">
+    <span class="heart-slot" data-index="0">🤍</span>
+    <span class="heart-slot" data-index="1">🤍</span>
+    <span class="heart-slot" data-index="2">🤍</span>
+    <span class="heart-slot" data-index="3">🤍</span>
+    <span class="heart-slot" data-index="4">🤍</span>
+  </div>
+
+  <div class="game-frame">
+    <div class="score-bubble">
+      <span class="score-label">Punkte</span>
+      <span class="score-value" id="score">0</span>
+    </div>
+
+    <div class="stage">
+      <canvas id="game" width="400" height="400"></canvas>
+      <div id="bonusMsg"></div>
+    </div>
+
+    <button class="btn" onclick="restart()">Neu starten 🔁</button>
+  </div>
+</div>
 
 <canvas id="fireworks"></canvas>
 
 <div id="surprise">
-  <div class="card">
-    <div class="flowers">🌸🌹💐🌷🌺</div>
-    <h2>Für Yasmine ❤️</h2>
+  <div class="surprise-card">
+    <div class="flowers-badge">🌸</div>
+    <h2>Für Yasmine!</h2>
     <p>
-      Du hast dein Ziel von 10 Herzen erreicht!<br><br>
+      Du hast alle 5 Herzen gesammelt! 🎉<br>
       Diese Blumen sind nur für dich. 🌸<br>
       Du bist die Nummer 1. 💖
     </p>
-    <button onclick="closeSurprise()">Weiter spielen</button>
+    <button class="btn" onclick="closeSurprise()">Weiter spielen</button>
   </div>
 </div>
 
@@ -126,9 +383,23 @@
 
   const GRID_SIZE = 20;
   const GRID_COUNT = canvas.width / GRID_SIZE;
-  const SURPRISE_SCORE = 10;
+  const SURPRISE_SCORE = 5;
+  const SPEED = 100;
+
+  const BONUS_SPAWN_CHANCE = 0.4;
+  const BONUS_POINTS = 3;
+  const BONUS_LIFETIME_TICKS = 50;
+  const BONUS_BLINK_TICKS = 15;
+
+  const COLOR_BOARD = "#4B3B6B";
+  const COLOR_HEAD = "#FF6FA5";
+  const COLOR_BODY_A = "#B9A6FF";
+  const COLOR_BODY_B = "#FFD6E7";
 
   let snake, food, dx, dy, score, gameLoop;
+  let bonus = null;
+  let bonusTicksLeft = 0;
+  let surpriseShown = false;
 
   function start() {
     snake = [
@@ -137,44 +408,113 @@
       { x: 160, y: 200 }
     ];
 
-    food = randomFoodPosition();
+    food = randomFreePosition();
     dx = GRID_SIZE;
     dy = 0;
     score = 0;
+    bonus = null;
+    bonusTicksLeft = 0;
+    surpriseShown = false;
 
+    resetHeartsProgress();
     updateScoreDisplay();
 
     clearInterval(gameLoop);
-    gameLoop = setInterval(draw, 100);
+    gameLoop = setInterval(draw, SPEED);
   }
 
-  function randomFoodPosition() {
-    return {
-      x: Math.floor(Math.random() * GRID_COUNT) * GRID_SIZE,
-      y: Math.floor(Math.random() * GRID_COUNT) * GRID_SIZE
-    };
+  function randomFreePosition(avoidExtra = []) {
+    let pos;
+    let tries = 0;
+
+    do {
+      pos = {
+        x: Math.floor(Math.random() * GRID_COUNT) * GRID_SIZE,
+        y: Math.floor(Math.random() * GRID_COUNT) * GRID_SIZE
+      };
+      tries++;
+    } while (
+      tries < 50 &&
+      (
+        (snake && snake.some(p => p.x === pos.x && p.y === pos.y)) ||
+        (food && food.x === pos.x && food.y === pos.y) ||
+        avoidExtra.some(p => p.x === pos.x && p.y === pos.y)
+      )
+    );
+
+    return pos;
   }
 
-  function updateScoreDisplay(withHeart = false) {
-    document.getElementById("score").innerHTML =
-      "Punkte: " + score + (withHeart ? " ❤️" : "");
+  function resetHeartsProgress() {
+    document.querySelectorAll(".heart-slot").forEach(el => {
+      el.textContent = "🤍";
+      el.classList.remove("filled");
+    });
+  }
 
-    document.getElementById("goal").innerHTML =
-      "Ziel: " + Math.min(score, SURPRISE_SCORE) + " / " + SURPRISE_SCORE + " Herzen ❤️";
+  function updateHeartsProgress() {
+    const slots = document.querySelectorAll(".heart-slot");
+    slots.forEach((el, i) => {
+      const shouldBeFilled = i < Math.min(score, SURPRISE_SCORE);
+      const isFilled = el.textContent === "❤️";
+
+      if (shouldBeFilled && !isFilled) {
+        el.textContent = "❤️";
+        el.classList.remove("filled");
+        void el.offsetWidth;
+        el.classList.add("filled");
+      }
+    });
+  }
+
+  function updateScoreDisplay(pulse = false) {
+    const scoreEl = document.getElementById("score");
+    scoreEl.textContent = score;
+
+    if (pulse) {
+      scoreEl.classList.remove("pulse");
+      void scoreEl.offsetWidth;
+      scoreEl.classList.add("pulse");
+    }
+
+    updateHeartsProgress();
+  }
+
+  function roundedRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+    ctx.fill();
   }
 
   function draw() {
-    ctx.fillStyle = "#222";
+    ctx.fillStyle = COLOR_BOARD;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Essen
     ctx.font = "25px Arial";
     ctx.fillText("❤️", food.x, food.y + 20);
 
-    // Schlange
+    // Bonus-Item (blinkt kurz bevor er verschwindet)
+    if (bonus) {
+      const blinking = bonusTicksLeft <= BONUS_BLINK_TICKS && bonusTicksLeft % 6 < 3;
+      if (!blinking) {
+        ctx.fillText("🍓", bonus.x, bonus.y + 20);
+      }
+    }
+
+    // Schlange (abwechselnd Rosa/Lavendel, schön rund)
     snake.forEach((part, index) => {
-      ctx.fillStyle = index === 0 ? "#e91e63" : "#ff80ab";
-      ctx.fillRect(part.x, part.y, 18, 18);
+      if (index === 0) {
+        ctx.fillStyle = COLOR_HEAD;
+      } else {
+        ctx.fillStyle = index % 2 === 0 ? COLOR_BODY_A : COLOR_BODY_B;
+      }
+      roundedRect(part.x, part.y, 18, 18, 6);
     });
 
     const head = { x: snake[0].x + dx, y: snake[0].y + dy };
@@ -195,26 +535,61 @@
 
     snake.unshift(head);
 
+    // Bonus-Timer ablaufen lassen
+    if (bonus) {
+      bonusTicksLeft--;
+      if (bonusTicksLeft <= 0) {
+        bonus = null;
+      }
+    }
+
     // Essen gefunden
     if (head.x === food.x && head.y === food.y) {
       score++;
       updateScoreDisplay(true);
 
-      if (score === SURPRISE_SCORE) {
+      if (score >= SURPRISE_SCORE && !surpriseShown) {
+        surpriseShown = true;
         clearInterval(gameLoop);
         showSurprise();
       }
 
-      food = randomFoodPosition();
+      food = randomFreePosition(bonus ? [bonus] : []);
+
+      if (!bonus && Math.random() < BONUS_SPAWN_CHANCE) {
+        bonus = randomFreePosition([food]);
+        bonusTicksLeft = BONUS_LIFETIME_TICKS;
+      }
+    } else if (bonus && head.x === bonus.x && head.y === bonus.y) {
+      score += BONUS_POINTS;
+      bonus = null;
+      updateScoreDisplay(true);
+      showBonusMessage();
+
+      if (score >= SURPRISE_SCORE && !surpriseShown) {
+        surpriseShown = true;
+        clearInterval(gameLoop);
+        showSurprise();
+      }
+
+      snake.pop();
     } else {
       snake.pop();
     }
   }
 
+  function showBonusMessage() {
+    const el = document.getElementById("bonusMsg");
+    el.textContent = "+" + BONUS_POINTS + " Bonus 🍓";
+    el.classList.remove("show");
+    void el.offsetWidth;
+    el.classList.add("show");
+  }
+
   function gameOver() {
     clearInterval(gameLoop);
     setTimeout(() => {
-      alert("Game Over ❤️\n\nYasmine bleibt trotzdem die Nummer 1!");
+      alert("Game Over 💗\n\nYasmine bleibt trotzdem die Nummer 1!");
     }, 100);
   }
 
@@ -243,7 +618,7 @@
   window.addEventListener("resize", resizeFireworksCanvas);
 
   function randomColor() {
-    const colors = ["#e91e63", "#ff80ab", "#ffd54f", "#40c4ff", "#69f0ae", "#ffffff"];
+    const colors = ["#FF6FA5", "#B9A6FF", "#6FE0B8", "#FFD6E7", "#FFFFFF"];
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
@@ -270,7 +645,6 @@
     fwCanvas.style.display = "block";
     particles = [];
 
-    // ein paar Feuerwerke nacheinander starten
     const bursts = 5;
     for (let i = 0; i < bursts; i++) {
       setTimeout(() => {
@@ -288,15 +662,14 @@
   function animateFireworks() {
     fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
 
-    // leichte Nachwirk-Spur statt hartem Löschen
-    fwCtx.fillStyle = "rgba(0,0,0,0.05)";
+    fwCtx.fillStyle = "rgba(75,59,107,0.06)";
     fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
     fwCtx.globalCompositeOperation = "lighter";
 
     particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.03; // leichte Schwerkraft
+      p.vy += 0.03;
       p.alpha -= 0.015;
 
       fwCtx.beginPath();
@@ -326,8 +699,7 @@
 
   function closeSurprise() {
     document.getElementById("surprise").style.display = "none";
-    gameLoop = setInterval(draw, 100);
-    // Feuerwerk klingt von selbst aus (siehe animateFireworks-Bedingung)
+    gameLoop = setInterval(draw, SPEED);
   }
 
   start();
