@@ -102,7 +102,7 @@
 
 <canvas id="game" width="400" height="400"></canvas>
 <div id="score">Punkte: 0</div>
-<div id="goal">Ziel: 0 / 3 Herzen ❤️</div>
+<div id="goal">Ziel: 0 / 10 Herzen ❤️</div>
 <button onclick="restart()">Neustart</button>
 
 <canvas id="fireworks"></canvas>
@@ -112,7 +112,7 @@
     <div class="flowers">🌸🌹💐🌷🌺</div>
     <h2>Für Yasmine ❤️</h2>
     <p>
-      Du hast dein Ziel von 3 Herzen erreicht!<br><br>
+      Du hast dein Ziel von 10 Herzen erreicht!<br><br>
       Diese Blumen sind nur für dich. 🌸<br>
       Du bist die Nummer 1. 💖
     </p>
@@ -126,7 +126,7 @@
 
   const GRID_SIZE = 20;
   const GRID_COUNT = canvas.width / GRID_SIZE;
-  const SURPRISE_SCORE = 3;
+  const SURPRISE_SCORE = 10;
 
   let snake, food, dx, dy, score, gameLoop;
 
