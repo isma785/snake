@@ -2,211 +2,335 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Yasemin Snake ❤️</title>
+<title>Yasmine Snake ❤️</title>
 
 <style>
-body {
+  body {
     background: linear-gradient(135deg, #ffd6e8, #fff);
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     text-align: center;
-}
+  }
 
-h1 {
+  h1 {
     color: #e91e63;
-}
+  }
 
-canvas {
+  canvas#game {
     background: #222;
     border: 4px solid #e91e63;
     border-radius: 10px;
-}
+  }
 
-#score {
+  #score {
     font-size: 22px;
     color: #e91e63;
     margin: 10px;
-}
+  }
 
-button {
+  #goal {
+    font-size: 16px;
+    color: #c2185b;
+    margin: -5px 0 10px;
+    font-weight: bold;
+  }
+
+  button {
     padding: 10px 20px;
     border: none;
     border-radius: 20px;
     background: #e91e63;
     color: white;
     cursor: pointer;
-}
-</style>
+    font-size: 15px;
+  }
 
+  button:hover {
+    background: #c2185b;
+  }
+
+  /* Reihenfolge (unten nach oben): Overlay -> Feuerwerk -> Karte */
+  #surprise {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 900;
+  }
+
+  #fireworks {
+    position: fixed;
+    inset: 0;
+    z-index: 950;
+    pointer-events: none;
+    display: none;
+  }
+
+  .card {
+    position: relative;
+    z-index: 1000;
+    background: white;
+    padding: 40px;
+    border-radius: 25px;
+    text-align: center;
+    animation: pop .6s;
+    box-shadow: 0 0 40px hotpink;
+  }
+
+  .flowers {
+    font-size: 70px;
+    display: inline-block;
+    animation: float 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pop {
+    from { transform: scale(.2); opacity: 0; }
+    to   { transform: scale(1);  opacity: 1; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+</style>
 </head>
 
 <body>
 
-<h1>🐍 Yasemin Snake ❤️</h1>
+<h1>🐍 Yasmine Snake ❤️</h1>
 
 <canvas id="game" width="400" height="400"></canvas>
-
 <div id="score">Punkte: 0</div>
-
+<div id="goal">Ziel: 0 / 3 Herzen ❤️</div>
 <button onclick="restart()">Neustart</button>
 
+<canvas id="fireworks"></canvas>
+
+<div id="surprise">
+  <div class="card">
+    <div class="flowers">🌸🌹💐🌷🌺</div>
+    <h2>Für Yasmine ❤️</h2>
+    <p>
+      Du hast dein Ziel von 3 Herzen erreicht!<br><br>
+      Diese Blumen sind nur für dich. 🌸<br>
+      Du bist die Nummer 1. 💖
+    </p>
+    <button onclick="closeSurprise()">Weiter spielen</button>
+  </div>
+</div>
 
 <script>
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+  const GRID_SIZE = 20;
+  const GRID_COUNT = canvas.width / GRID_SIZE;
+  const SURPRISE_SCORE = 3;
 
-let snake;
-let food;
-let dx;
-let dy;
-let score;
-let gameLoop;
+  let snake, food, dx, dy, score, gameLoop;
 
-
-function start(){
-
+  function start() {
     snake = [
-        {x:200,y:200},
-        {x:180,y:200},
-        {x:160,y:200}
+      { x: 200, y: 200 },
+      { x: 180, y: 200 },
+      { x: 160, y: 200 }
     ];
 
-    food = {
-        x: Math.floor(Math.random()*20)*20,
-        y: Math.floor(Math.random()*20)*20
-    };
-
-    dx = 20;
+    food = randomFoodPosition();
+    dx = GRID_SIZE;
     dy = 0;
     score = 0;
 
-    document.getElementById("score").innerHTML =
-    "Punkte: " + score;
+    updateScoreDisplay();
 
     clearInterval(gameLoop);
-    gameLoop = setInterval(draw,100);
-}
+    gameLoop = setInterval(draw, 100);
+  }
 
+  function randomFoodPosition() {
+    return {
+      x: Math.floor(Math.random() * GRID_COUNT) * GRID_SIZE,
+      y: Math.floor(Math.random() * GRID_COUNT) * GRID_SIZE
+    };
+  }
 
-function draw(){
+  function updateScoreDisplay(withHeart = false) {
+    document.getElementById("score").innerHTML =
+      "Punkte: " + score + (withHeart ? " ❤️" : "");
 
-    ctx.fillStyle="#222";
-    ctx.fillRect(0,0,400,400);
+    document.getElementById("goal").innerHTML =
+      "Ziel: " + Math.min(score, SURPRISE_SCORE) + " / " + SURPRISE_SCORE + " Herzen ❤️";
+  }
 
+  function draw() {
+    ctx.fillStyle = "#222";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Essen
-    ctx.font="25px Arial";
-    ctx.fillText("❤️", food.x, food.y+20);
-
+    ctx.font = "25px Arial";
+    ctx.fillText("❤️", food.x, food.y + 20);
 
     // Schlange
-    snake.forEach((part,index)=>{
-
-        ctx.fillStyle = index===0 ? "#e91e63" : "#ff80ab";
-
-        ctx.fillRect(
-            part.x,
-            part.y,
-            18,
-            18
-        );
+    snake.forEach((part, index) => {
+      ctx.fillStyle = index === 0 ? "#e91e63" : "#ff80ab";
+      ctx.fillRect(part.x, part.y, 18, 18);
     });
 
-
-    let head = {
-        x: snake[0].x + dx,
-        y: snake[0].y + dy
-    };
-
+    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
     // Wand treffen
-    if(
-        head.x < 0 ||
-        head.x >= 400 ||
-        head.y < 0 ||
-        head.y >= 400
-    ){
-        gameOver();
-        return;
+    if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+      gameOver();
+      return;
     }
-
 
     // Sich selbst treffen
-    for(let part of snake){
-        if(head.x===part.x && head.y===part.y){
-            gameOver();
-            return;
-        }
+    for (const part of snake) {
+      if (head.x === part.x && head.y === part.y) {
+        gameOver();
+        return;
+      }
     }
-
 
     snake.unshift(head);
 
-
     // Essen gefunden
-    if(head.x===food.x && head.y===food.y){
+    if (head.x === food.x && head.y === food.y) {
+      score++;
+      updateScoreDisplay(true);
 
-        score++;
+      if (score === SURPRISE_SCORE) {
+        clearInterval(gameLoop);
+        showSurprise();
+      }
 
-        document.getElementById("score").innerHTML =
-        "Punkte: " + score + " ❤️";
-
-        food={
-            x:Math.floor(Math.random()*20)*20,
-            y:Math.floor(Math.random()*20)*20
-        };
-
+      food = randomFoodPosition();
     } else {
-        snake.pop();
+      snake.pop();
     }
+  }
 
-}
-
-
-function gameOver(){
-
+  function gameOver() {
     clearInterval(gameLoop);
+    setTimeout(() => {
+      alert("Game Over ❤️\n\nYasmine bleibt trotzdem die Nummer 1!");
+    }, 100);
+  }
 
-    setTimeout(()=>{
-        alert(
-        "Game Over ❤️\n\Yasemin bleibt trotzdem die Nummer 1!"
-        );
-    },100);
-}
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowUp" && dy !== GRID_SIZE) { dx = 0; dy = -GRID_SIZE; }
+    if (e.key === "ArrowDown" && dy !== -GRID_SIZE) { dx = 0; dy = GRID_SIZE; }
+    if (e.key === "ArrowLeft" && dx !== GRID_SIZE) { dx = -GRID_SIZE; dy = 0; }
+    if (e.key === "ArrowRight" && dx !== -GRID_SIZE) { dx = GRID_SIZE; dy = 0; }
+  });
 
-
-document.addEventListener("keydown", e=>{
-
-    if(e.key==="ArrowUp" && dy!==20){
-        dx=0;
-        dy=-20;
-    }
-
-    if(e.key==="ArrowDown" && dy!==-20){
-        dx=0;
-        dy=20;
-    }
-
-    if(e.key==="ArrowLeft" && dx!==20){
-        dx=-20;
-        dy=0;
-    }
-
-    if(e.key==="ArrowRight" && dx!==-20){
-        dx=20;
-        dy=0;
-    }
-
-});
-
-
-function restart(){
+  function restart() {
     start();
-}
+  }
 
+  // ---------- Überraschung: Blumen + Feuerwerk ----------
 
-start();
+  const fwCanvas = document.getElementById("fireworks");
+  const fwCtx = fwCanvas.getContext("2d");
+  let particles = [];
+  let fwAnimationId = null;
 
+  function resizeFireworksCanvas() {
+    fwCanvas.width = window.innerWidth;
+    fwCanvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeFireworksCanvas);
+
+  function randomColor() {
+    const colors = ["#e91e63", "#ff80ab", "#ffd54f", "#40c4ff", "#69f0ae", "#ffffff"];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function spawnFirework(x, y) {
+    const particleCount = 40;
+    const color = randomColor();
+
+    for (let i = 0; i < particleCount; i++) {
+      const angle = (Math.PI * 2 * i) / particleCount;
+      const speed = 2 + Math.random() * 3;
+
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        alpha: 1,
+        color
+      });
+    }
+  }
+
+  function launchFireworksShow() {
+    resizeFireworksCanvas();
+    fwCanvas.style.display = "block";
+    particles = [];
+
+    // ein paar Feuerwerke nacheinander starten
+    const bursts = 5;
+    for (let i = 0; i < bursts; i++) {
+      setTimeout(() => {
+        const x = fwCanvas.width * (0.2 + Math.random() * 0.6);
+        const y = fwCanvas.height * (0.2 + Math.random() * 0.4);
+        spawnFirework(x, y);
+      }, i * 500);
+    }
+
+    if (!fwAnimationId) {
+      animateFireworks();
+    }
+  }
+
+  function animateFireworks() {
+    fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+
+    // leichte Nachwirk-Spur statt hartem Löschen
+    fwCtx.fillStyle = "rgba(0,0,0,0.05)";
+    fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+    fwCtx.globalCompositeOperation = "lighter";
+
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.03; // leichte Schwerkraft
+      p.alpha -= 0.015;
+
+      fwCtx.beginPath();
+      fwCtx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+      fwCtx.fillStyle = p.color;
+      fwCtx.globalAlpha = Math.max(p.alpha, 0);
+      fwCtx.fill();
+    });
+
+    fwCtx.globalAlpha = 1;
+    fwCtx.globalCompositeOperation = "source-over";
+
+    particles = particles.filter(p => p.alpha > 0);
+
+    if (particles.length > 0 || document.getElementById("surprise").style.display === "flex") {
+      fwAnimationId = requestAnimationFrame(animateFireworks);
+    } else {
+      fwAnimationId = null;
+      fwCanvas.style.display = "none";
+    }
+  }
+
+  function showSurprise() {
+    document.getElementById("surprise").style.display = "flex";
+    launchFireworksShow();
+  }
+
+  function closeSurprise() {
+    document.getElementById("surprise").style.display = "none";
+    gameLoop = setInterval(draw, 100);
+    // Feuerwerk klingt von selbst aus (siehe animateFireworks-Bedingung)
+  }
+
+  start();
 </script>
 
 </body>
